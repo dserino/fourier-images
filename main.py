@@ -81,7 +81,7 @@ def main():
     N = 10
 
     # loop through all combos of k and l
-    av = []
+    av = [[], [], []]
     for n in range(N+1):
         pairs = square_boundary(n)
         for l, k in pairs:
@@ -89,31 +89,32 @@ def main():
             
             hv = (+ np.exp(- 2 * np.pi * 1j * l * yv[+1:])
                   - np.exp(- 2 * np.pi * 1j * l * yv[:-1]))
+            gv = (+ np.exp(- 2 * np.pi * 1j * k * xv[+1:])
+                  - np.exp(- 2 * np.pi * 1j * k * xv[:-1]))
 
-            if k == 0:
-                if l == 0:
-                    term = dx * dy * np.sum( img[:, :, dim] )
+            for dim in range(3):
+                if k == 0:
+                    if l == 0:
+                        term = dx * dy * np.sum( img[:, :, dim] )
+                    else:
+                        term = - dx / (2 * np.pi * 1j * l) \
+                            * np.sum( img[:, :, dim] \
+                                      *  hv )
                 else:
-                    term = - dx / (2 * np.pi * 1j * l) \
-                        * np.sum( img[:, :, dim] \
-                                  *  hv )
-            else:
-                gv = (+ np.exp(- 2 * np.pi * 1j * k * xv[+1:])
-                      - np.exp(- 2 * np.pi * 1j * k * xv[:-1]))
-                if l == 0:
-                    term = - dy / (2 * np.pi * 1j * k) \
-                        * np.sum( img[:, :, dim].T \
-                                  * gv )
-                else:
-                    term = - 1 / (4 * np.pi ** 2 * k * l) \
-                        * np.sum( (img[:, :, dim] \
-                                   * hv).T
-                                  * gv )
+                    if l == 0:
+                        term = - dy / (2 * np.pi * 1j * k) \
+                            * np.sum( img[:, :, dim].T \
+                                      * gv )
+                    else:
+                        term = - 1 / (4 * np.pi ** 2 * k * l) \
+                            * np.sum( (img[:, :, dim] \
+                                       * hv).T
+                                      * gv )
 
-            av.append(term)
+                av[dim].append(term)
 
-    plt.figure()
-    plt.plot(np.abs(np.array(av)))
+    # plt.figure()
+    # plt.plot(np.abs(np.array(av)))
     
     count = 0
     xvh = 0.5 * (xv[+1:]+xv[:-1])
@@ -125,10 +126,12 @@ def main():
         for l, k in pairs:
             hv = np.exp(2 * np.pi * 1j * l * yvh)
             gv = np.exp(2 * np.pi * 1j * k * xvh)
-            val[:, :, dim] += \
-                np.real(
-                    + (av[count] \
-                       * np.outer(gv, hv))) / 255
+            hv_gv = np.outer(gv, hv)
+            for dim in range(3):
+                val[:, :, dim] += \
+                    np.real(
+                        + (av[dim][count] \
+                           * hv_gv)) / 255
             count += 1
 
         # plot

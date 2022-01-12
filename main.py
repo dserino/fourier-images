@@ -132,11 +132,12 @@ def main():
                     np.real(
                         + (av[dim][count] \
                            * hv_gv)) / 255
+                
             count += 1
 
         # plot
         name = ("figs/fourier*_%3d" % (n)).replace(" ", "0")
-        plot(val, [5,6,7,8], name)
+        plot(np.clip(val, 0, 1), [5,6,7,8], name)
         
 
     # plt.show()

@@ -31,7 +31,6 @@ def main():
 
     xv = np.linspace(0, npx, npx+1) / npx
     yv = np.linspace(0, npy, npy+1) / npy
-    Yv, Xv = np.meshgrid(yv, xv)
 
     dx = 1 / npx
     dy = 1 / npy
@@ -80,19 +79,18 @@ def main():
     
     # breakpoint()
     count = 0
-    Xvh = 0.5 * (Xv[+1:, :-1]+Xv[:-1, :-1])
-    Yvh = 0.5 * (Yv[:-1, +1:]+Yv[:-1, :-1])
+    xvh = 0.5 * (xv[+1:]+xv[:-1])
     yvh = 0.5 * (yv[+1:]+yv[:-1])
 
     val = np.zeros((npx, npy, 3))
     for l in range(-Ny, Ny+1):
         hv = np.exp(2 * np.pi * 1j * l * yvh)
         for k in range(-Nx, Nx+1):
+            gv = np.exp(2*np.pi*1j*k*xvh)
             val[:, :, dim] += \
                 np.real(
-                    + av[count] \
-                    * np.exp(2*np.pi*1j*k*Xvh) \
-                    * hv) / 255
+                    + (av[count] \
+                       * np.outer(gv, hv))) / 255
             count += 1
     # breakpoint()
     plt.figure()
